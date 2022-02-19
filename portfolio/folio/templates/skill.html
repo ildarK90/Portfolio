@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Имя</th>
+      <th scope="col">Проекты</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ skill.s_name }}</td>
+    </tr>
+   <tr>
+      <td>
+        {% for pr in skill.project.all %}
+          <a href="{{pr.get_absolute_url}}">{{ pr.p_name }}</a>
+        {% endfor %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+    {% endblock %}
