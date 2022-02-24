@@ -26,9 +26,7 @@ class Home(DataMixin, ListView):
         return context
 
     def get_queryset(self):
-
         return Project.objects.all().select_related('id_category').prefetch_related('skills').select_related('id_view')
-
 
 
 # def skill(request, skill_slug):
@@ -52,7 +50,6 @@ class Skill(DataMixin, DetailView):
         return context
 
 
-
 # def skills(request):
 #     skills = Skills.objects.all()
 #     return render(request, 'skills.html', {'skills': skills})
@@ -69,8 +66,8 @@ class Skills(DataMixin, ListView):
         return context
 
     def get_queryset(self):
-
         return Superskills.objects.all().prefetch_related('project')
+
 
 # def project(request, pk):
 #     project = Project.objects.get(pk=pk)

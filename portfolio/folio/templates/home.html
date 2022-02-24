@@ -51,6 +51,11 @@
       </td>
       <td>{{pr.p_sorting}}</td>
       <td>{{pr.p_status}}</td>
+      <td>
+        {% for team in pr.id_teamlist.all %}
+        {{team.b_name}}
+        {% endfor %}
+      </td>
 
     </tr>
   {% endfor %}
