@@ -26,7 +26,7 @@ class Home(DataMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Project.objects.all().select_related('id_category').prefetch_related('skills').select_related('id_view')
+        return Project.objects.all().select_related('id_category').prefetch_related('skills').select_related('id_view').prefetch_related('id_teamlist')
 
 
 # def skill(request, skill_slug):
