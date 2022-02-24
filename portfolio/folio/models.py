@@ -135,23 +135,25 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
         super(Project, self).save(*args, **kwargs)
-        webp_preview = self.make_resize(self.p_img, extension='webp', resolution=preview_webp)
-        webp_detailed = self.make_resize(self.p_img, extension='webp', resolution=detailed_webp)
-        png_preview = self.make_resize(self.p_img, extension='png', resolution=preview_png)
-        png_detailed = self.make_resize(self.p_img, extension='png', resolution=detailed_png)
-        print(webp_preview)
-        print(webp_detailed)
-        self.p_img_preview_webp = webp_preview
-        self.p_img_large_webp = webp_detailed
-        self.p_img_preview_png = png_preview
-        self.p_img_large_png = png_detailed
-        super().save(*args, **kwargs)
-
+        if self.p_img:
+            webp_preview = self.make_resize(self.p_img, extension='webp', resolution=preview_webp)
+            webp_detailed = self.make_resize(self.p_img, extension='webp', resolution=detailed_webp)
+            png_preview = self.make_resize(self.p_img, extension='png', resolution=preview_png)
+            png_detailed = self.make_resize(self.p_img, extension='png', resolution=detailed_png)
+            print(webp_preview)
+            print(webp_detailed)
+            self.p_img_preview_webp = webp_preview
+            self.p_img_large_webp = webp_detailed
+            self.p_img_preview_png = png_preview
+            self.p_img_large_png = png_detailed
+            super().save(*args, **kwargs)
+        else:
+            pass
     def __str__(self):
         return self.p_name
 
     def get_absolute_url(self):
-        return reverse('project', kwargs={'pk': self.pk})
+        return reverse('project', kwargs={'slug': self.slug})
 
     class Meta:
         verbose_name = 'Проект'
@@ -222,7 +224,7 @@ class Skills(models.Model):
         verbose_name = 'Навыки'
 
     def get_absolute_url(self):
-        return reverse('skill', kwargs={'pk': self.pk})
+        return reverse('skill', kwargs={'skill_slug': self.slug})
 
 
 class CatSkill(models.Model):

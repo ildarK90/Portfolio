@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-
+{%block title%}
+<title>{{title}}</title>
+{% endblock %}
 {% block content %}
 
 <table class="table">
@@ -22,5 +24,10 @@
     </tr>
   </tbody>
 </table>
+{% for pr in projects%}
 
+<a href="{{pr.get_absolute_url}}">{{pr.p_name}}</a>
+<br>
+
+{% endfor %}
     {% endblock %}

@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-
+{%block title%}
+<title>{{title}}</title>
+{% endblock %}
 {% block content %}
 
 <table class="table">
@@ -17,9 +19,9 @@
   </thead>
   <tbody>
 
-
+    {{object.p_name}}
     <tr>
-      <td>{{ project.p_name }}</td>
+      <td>{{ project_det.p_name }}</td>
       <td>{{project.id_category.c_name}}</td>
       <td>{{project.id_view.v_name}}</td>
       <td>{{project.p_description}}</td>

@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.generic import ListView
+from django.views.generic import ListView, DetailView
 from .utils import *
 from .models import *
+from .models import Skills as Superskills
 from rest_framework import generics, permissions, mixins, status
 from .serializers import *
 
@@ -24,10 +25,32 @@ class Home(DataMixin, ListView):
         context = dict(list(context.items()) + list(c_def.items()))
         return context
 
+    def get_queryset(self):
 
-def skill(request, pk):
-    skill = Skills.objects.get(pk=pk)
-    return render(request, 'skill.html', {'skill': skill})
+        return Project.objects.all().select_related('id_category').prefetch_related('skills').select_related('id_view')
+
+
+
+# def skill(request, skill_slug):
+#     skill = Superskills.objects.get(slug=skill_slug)
+#     skill_sl = skill.slug
+#     projects = Project.objects.filter(skills__slug=skill_sl)
+#     return render(request, 'skill.html', {'skill': skill, 'projects': projects})
+
+
+class Skill(DataMixin, DetailView):
+    model = Superskills
+    context_object_name = 'skill'
+    template_name = 'skill.html'
+    slug_url_kwarg = 'skill_slug'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(context)
+        c_def = self.get_user_context(title=context['skill'])
+        context = dict(list(context.items()) + list(c_def.items()))
+        return context
+
 
 
 # def skills(request):
@@ -42,16 +65,32 @@ class Skills(DataMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title='Скиллы')
-        context = dict(list(context.items())+list(c_def.items()))
-        print(context)
+        context = dict(list(context.items()) + list(c_def.items()))
         return context
 
+    def get_queryset(self):
+
+        return Superskills.objects.all().prefetch_related('project')
+
+# def project(request, pk):
+#     project = Project.objects.get(pk=pk)
+#     print(project.p_name)
+#     return render(request, 'project.html', {'project': project})
 
 
-def project(request, pk):
-    project = Project.objects.get(pk=pk)
-    print(project.p_name)
-    return render(request, 'project.html', {'project': project})
+class ProjectDetail(DataMixin, DetailView):
+    model = Project
+    context_object_name = 'project'
+    template_name = 'project.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        print(context)
+        c_def = self.get_user_context(title=context['project'].p_name)
+        print(context['object'].p_name)
+        context = dict(list(context.items()) + list(c_def.items()))
+        print(context)
+        return context
 
 
 class ProjectList(generics.ListCreateAPIView):

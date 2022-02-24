@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% block title%}
+<title>{{title}}</title>
+{%endblock%}
 
 {% block content %}
 
@@ -35,9 +38,9 @@
       <td>{{pr.webp_pre}}</td>
 
 
-
+      {%if pr.p_img%}
       <img src="{{pr.p_img.url}}" alt="First slide" width="400" height="300">
-
+      {% endif %}
 
       <td>{{pr.p_link}}</td>
       <td>{{pr.p_git}}</td>
