@@ -12,7 +12,7 @@ class ProjectAdmin(admin.ModelAdmin):
     # prepopulated_fields = {"slug": ('title',)}
     # fields = '__all__'
     fields = (
-    'id_category', 'id_view', 'p_organization', 'p_name', 'slug', 'p_description', 'p_i_did', 'p_img', 'p_img_preview_png', 'p_img_preview_webp', 'p_img_large_png', 'p_img_large_webp',
+    'id_category', 'id_view', 'id_teamlist', 'p_organization', 'p_name', 'slug', 'p_description', 'p_i_did', 'p_img', 'p_img_preview_png', 'p_img_preview_webp', 'p_img_large_png', 'p_img_large_webp',
     'get_html_edit', 'p_link', 'skills', 'p_git', 'p_sorting', 'p_status')
     readonly_fields = ('get_html_edit',)
 
@@ -37,5 +37,4 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(View)
 admin.site.register(Skills)
 admin.site.register(Team)
-admin.site.register(TeamList)
 admin.site.register(CatSkill)

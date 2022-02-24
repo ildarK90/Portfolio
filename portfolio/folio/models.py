@@ -116,7 +116,7 @@ class Project(models.Model):
 
     id_category = models.ForeignKey('Category', on_delete=models.CASCADE, verbose_name='Категория')
     id_view = models.ForeignKey('View', on_delete=models.CASCADE, verbose_name='Вид')
-    id_teamlist = models.ManyToManyField('Team', through='TeamList')
+    id_teamlist = models.ManyToManyField('Team', blank=True,related_name='projects')
     p_organization = models.CharField(max_length=350, verbose_name='Организация',default=None)
     p_name = models.CharField(max_length=255, verbose_name='Имя проекта')
     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
@@ -159,14 +159,14 @@ class Project(models.Model):
         verbose_name = 'Проект'
 
 
-class TeamList(models.Model):
-    id_project = models.ForeignKey('Project', on_delete=models.CASCADE, verbose_name='Проект')
-    id_team = models.ForeignKey('Team', on_delete=models.CASCADE, verbose_name='Команда')
-
-    class Meta:
-        verbose_name = 'Список команды'
-
-        unique_together = [['id_project', 'id_team']]
+# class TeamList(models.Model):
+#     id_project = models.ForeignKey('Project', on_delete=models.CASCADE, verbose_name='Проект')
+#     id_team = models.ForeignKey('Team', on_delete=models.CASCADE, verbose_name='Команда')
+#
+#     class Meta:
+#         verbose_name = 'Список команды'
+#
+#         unique_together = [['id_project', 'id_team']]
 
 
 class Team(models.Model):
