@@ -122,7 +122,7 @@ class CatSkiList(generics.ListCreateAPIView):
     """
     Выводим список проектов
     """
-    queryset = CatSkill.objects.all()
+    queryset = CatSkill.objects.all().prefetch_related('skills')
     serializer_class = CatSkillSerializer
 
     def perform_create(self, serializer):

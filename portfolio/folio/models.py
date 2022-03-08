@@ -147,17 +147,8 @@ class Project(models.Model):
             print(self.__original_name)
             print('Есть изображение',self.p_img.name,self.__original_name.name)
 
-            # if self.__original_name:
-            #     print('есть дублирующее изображение')
-            #
-            #     print(self.__original_name.name)
-            #     image1 = Image.open(self.__original_name)
-            #     image2 = Image.open(self.p_img)
-            #     result = ImageChops.difference(image1, image2).getbbox()
-
             if self.__original_name.name != self.p_img.name:
                 super(Project, self).save(update_fields=["p_img"])
-                 #         super(Project, self).save(*args, **kwargs)
                 webp_preview = self.make_resize(self.p_img, extension='webp', resolution=preview_webp)
                 webp_detailed = self.make_resize(self.p_img, extension='webp', resolution=detailed_webp)
                 png_preview = self.make_resize(self.p_img, extension='png', resolution=preview_png)
@@ -183,16 +174,6 @@ class Project(models.Model):
 
     class Meta:
         verbose_name = 'Проект'
-
-
-# class TeamList(models.Model):
-#     id_project = models.ForeignKey('Project', on_delete=models.CASCADE, verbose_name='Проект')
-#     id_team = models.ForeignKey('Team', on_delete=models.CASCADE, verbose_name='Команда')
-#
-#     class Meta:
-#         verbose_name = 'Список команды'
-#
-#         unique_together = [['id_project', 'id_team']]
 
 
 class Team(models.Model):
