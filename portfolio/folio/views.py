@@ -1,8 +1,12 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.generic import ListView, DetailView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
+
 from .utils import *
 from .models import *
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from .models import Skills as Superskills
 from rest_framework import generics, permissions, mixins, status
 from .serializers import *
@@ -26,7 +30,8 @@ class Home(DataMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Project.objects.all().select_related('id_category').prefetch_related('skills').select_related('id_view').prefetch_related('id_teamlist')
+        return Project.objects.all().select_related('id_category').prefetch_related('skills').select_related(
+            'id_view').prefetch_related('id_teamlist')
 
 
 # def skill(request, skill_slug):
@@ -91,8 +96,48 @@ class ProjectDetail(DataMixin, DetailView):
 
 
 class ProjectList(generics.ListCreateAPIView):
-    queryset = Project.objects.all()
+    """
+    Выводим список проектов
+    """
+    queryset = Project.objects.all().prefetch_related('skills').prefetch_related('id_teamlist').select_related(
+        'id_category').select_related('id_view')
     serializer_class = ProjectSerializer
 
     def perform_create(self, serializer):
         serializer.save()
+
+
+class CategoryList(generics.ListCreateAPIView):
+    """
+    Выводим список проектов
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class CatSkiList(generics.ListCreateAPIView):
+    """
+    Выводим список проектов
+    """
+    queryset = CatSkill.objects.all()
+    serializer_class = CatSkillSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+
+class ProjectDetailed(RetrieveAPIView):
+    """
+    Выводим проект детально
+    """
+    serializer_class = ProjectDet
+
+    def get_queryset(self, **kwargs):
+        # pro = Project.objects.get(pk=self.kwargs['pk'])
+        # serializer = ProjectDet(pro)
+        # return Response(serializer.data)
+        return Project.objects.filter(pk=self.kwargs['pk']).prefetch_related('skills').prefetch_related('id_teamlist').select_related(
+        'id_category').select_related('id_view')

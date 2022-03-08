@@ -32,6 +32,8 @@ class ProjectAdmin(admin.ModelAdmin):
         model = Project
 
 
+
+
 admin.site.register(Category)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(View)

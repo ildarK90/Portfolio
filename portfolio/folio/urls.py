@@ -10,6 +10,9 @@ urlpatterns = [
     path('skills', Skills.as_view(), name='skills'),
     # path('project/<int:pk>',project,name='project'),
     path('project/<slug:slug>',ProjectDetail.as_view(), name='project'),
-    path('projects/', ProjectList.as_view()),
+    path('api/projects/', ProjectList.as_view()),
+    path('api/projects/<int:pk>', ProjectDetailed.as_view()),
+    path('api/categories', CategoryList.as_view()),
+    path('api/catskill',CatSkiList.as_view())
 ]
 

@@ -2,6 +2,7 @@ import urllib
 import uuid
 import sys
 import tinify
+from django.dispatch import receiver
 from io import BytesIO
 import base64
 from django.core.files import File as DjangoFile
@@ -14,9 +15,10 @@ import urllib.request
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import InMemoryUploadedFile, SimpleUploadedFile
 from django.db import models
+from django.db.models.signals import pre_save
 from django.urls import reverse
 import os
-from PIL import Image
+from PIL import Image, ImageChops
 from imagekit import register, ImageSpec
 from imagekit.models.fields import ImageSpecField, ProcessedImageField
 from imagekit.processors import ResizeToFit, Adjust, ResizeToFill, Anchor
@@ -60,6 +62,12 @@ def get_file_path(instance, filename):
 
 class Project(models.Model):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_name = self.p_img
+        print(self.__original_name)
+
+
     def find_proprtion(self, instance, new_width, new_height, extension, name, *args,
                        **kwargs):
         filename, file_extension = os.path.splitext(instance.path)
@@ -76,21 +84,21 @@ class Project(models.Model):
         size = (new_width, new_height)
         res_image = image.resize(size, Image.ANTIALIAS)
         res_image.save(save_path, format=str(extension))
-        super().save(*args, **kwargs)
-        if sys.getsizeof(extension) == sys.getsizeof('png'):
-            try:
-                print(sys.getsizeof(extension))
-                print(sys.getsizeof('png'))
-                print(sys.getsizeof('PNG'))
-                print('делаем tinyyyyyyyyyyyyy', extension)
-                source = tinify.from_file(save_path)
-                # exists = os.path.exists(save_path)
-                # if not exists:
-                source.to_file(save_path)
-            except:
-                pass
-        else:
-            pass
+        # super().save(*args, **kwargs)
+        # if sys.getsizeof(extension) == sys.getsizeof('png'):
+        #     try:
+        #         print(sys.getsizeof(extension))
+        #         print(sys.getsizeof('png'))
+        #         print(sys.getsizeof('PNG'))
+        #         print('делаем tinyyyyyyyyyyyyy', extension)
+        #         source = tinify.from_file(save_path)
+        #         # exists = os.path.exists(save_path)
+        #         # if not exists:
+        #         source.to_file(save_path)
+        #     except:
+        #         pass
+        # else:
+        #     pass
         return relative_name
 
     def make_resize(self, photo, extension, resolution):
@@ -116,13 +124,13 @@ class Project(models.Model):
 
     id_category = models.ForeignKey('Category', on_delete=models.CASCADE, verbose_name='Категория')
     id_view = models.ForeignKey('View', on_delete=models.CASCADE, verbose_name='Вид')
-    id_teamlist = models.ManyToManyField('Team', blank=True,related_name='projects')
-    p_organization = models.CharField(max_length=350, verbose_name='Организация',default=None)
+    id_teamlist = models.ManyToManyField('Team', blank=True, related_name='projects')
+    p_organization = models.CharField(max_length=350, verbose_name='Организация', default=None)
     p_name = models.CharField(max_length=255, verbose_name='Имя проекта')
     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     p_description = models.TextField(verbose_name='Описание')
     p_i_did = models.CharField(max_length=255, verbose_name='сфера деятельности', blank=True, null=True)
-    p_img = models.ImageField( verbose_name='Фото', blank=True, null=True)
+    p_img = models.ImageField(verbose_name='Фото', blank=True, null=True)
     p_img_preview_png = models.JSONField(null=True, blank=True)
     p_img_preview_webp = models.JSONField(null=True, blank=True)
     p_img_large_png = models.JSONField(null=True, blank=True)
@@ -134,21 +142,39 @@ class Project(models.Model):
     p_status = models.IntegerField(verbose_name='Статус')
 
     def save(self, *args, **kwargs):
-        super(Project, self).save(*args, **kwargs)
         if self.p_img:
-            webp_preview = self.make_resize(self.p_img, extension='webp', resolution=preview_webp)
-            webp_detailed = self.make_resize(self.p_img, extension='webp', resolution=detailed_webp)
-            png_preview = self.make_resize(self.p_img, extension='png', resolution=preview_png)
-            png_detailed = self.make_resize(self.p_img, extension='png', resolution=detailed_png)
-            print(webp_preview)
-            print(webp_detailed)
-            self.p_img_preview_webp = webp_preview
-            self.p_img_large_webp = webp_detailed
-            self.p_img_preview_png = png_preview
-            self.p_img_large_png = png_detailed
-            super().save(*args, **kwargs)
+            # super(Project, self).save(update_fields=["p_img"])
+            print(self.__original_name)
+            print('Есть изображение',self.p_img.name,self.__original_name.name)
+
+            # if self.__original_name:
+            #     print('есть дублирующее изображение')
+            #
+            #     print(self.__original_name.name)
+            #     image1 = Image.open(self.__original_name)
+            #     image2 = Image.open(self.p_img)
+            #     result = ImageChops.difference(image1, image2).getbbox()
+
+            if self.__original_name.name != self.p_img.name:
+                super(Project, self).save(update_fields=["p_img"])
+                 #         super(Project, self).save(*args, **kwargs)
+                webp_preview = self.make_resize(self.p_img, extension='webp', resolution=preview_webp)
+                webp_detailed = self.make_resize(self.p_img, extension='webp', resolution=detailed_webp)
+                png_preview = self.make_resize(self.p_img, extension='png', resolution=preview_png)
+                png_detailed = self.make_resize(self.p_img, extension='png', resolution=detailed_png)
+                print(webp_preview)
+                print(webp_detailed)
+                self.p_img_preview_webp = webp_preview
+                self.p_img_large_webp = webp_detailed
+                self.p_img_preview_png = png_preview
+                self.p_img_large_png = png_detailed
+                # super().save(*args, **kwargs)
         else:
-            pass
+            super(Project,self).save(*args, **kwargs)
+            print(self.p_img.name)
+            self.__original_name = self.p_img
+
+
     def __str__(self):
         return self.p_name
 
@@ -205,7 +231,7 @@ class View(models.Model):
 
 
 class Skills(models.Model):
-    id_catSkil = models.ForeignKey('CatSkill', on_delete=models.CASCADE, verbose_name='Категория навыка')
+    id_catSkil = models.ForeignKey('CatSkill', on_delete=models.CASCADE, verbose_name='Категория навыка', related_name='skills')
     s_name = models.CharField(max_length=250, db_index=True, verbose_name='Навыки')
     slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
     s_description = models.CharField(max_length=255, verbose_name='Описание')
