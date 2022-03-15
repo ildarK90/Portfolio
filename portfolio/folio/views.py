@@ -1,24 +1,18 @@
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.views.generic import ListView, DetailView
-from rest_framework.generics import RetrieveAPIView, ListAPIView
-
+from rest_framework.generics import RetrieveAPIView
 from .utils import *
 from .models import *
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from .models import Skills as Superskills
-from rest_framework import generics, permissions, mixins, status
+from rest_framework import generics
 from .serializers import *
 
 menu = [{'url': 'skills'}, {'url': 'projects'}]
 
 
-# def home(request):
-#     projects = Project.objects.all()
-#     return render(request, 'home.html', {'projects': projects})
-
 class Home(DataMixin, ListView):
+    """
+    Выводим
+    """
     model = Project
     context_object_name = 'projects'
     template_name = 'home.html'
@@ -32,13 +26,6 @@ class Home(DataMixin, ListView):
     def get_queryset(self):
         return Project.objects.all().select_related('id_category').prefetch_related('skills').select_related(
             'id_view').prefetch_related('id_teamlist')
-
-
-# def skill(request, skill_slug):
-#     skill = Superskills.objects.get(slug=skill_slug)
-#     skill_sl = skill.slug
-#     projects = Project.objects.filter(skills__slug=skill_sl)
-#     return render(request, 'skill.html', {'skill': skill, 'projects': projects})
 
 
 class Skill(DataMixin, DetailView):
@@ -55,10 +42,6 @@ class Skill(DataMixin, DetailView):
         return context
 
 
-# def skills(request):
-#     skills = Skills.objects.all()
-#     return render(request, 'skills.html', {'skills': skills})
-
 class Skills(DataMixin, ListView):
     model = Skills
     context_object_name = 'skills'
@@ -72,12 +55,6 @@ class Skills(DataMixin, ListView):
 
     def get_queryset(self):
         return Superskills.objects.all().prefetch_related('project')
-
-
-# def project(request, pk):
-#     project = Project.objects.get(pk=pk)
-#     print(project.p_name)
-#     return render(request, 'project.html', {'project': project})
 
 
 class ProjectDetail(DataMixin, DetailView):
@@ -100,7 +77,7 @@ class ProjectList(generics.ListCreateAPIView):
     Выводим список проектов
     """
     queryset = Project.objects.all().prefetch_related('skills').prefetch_related('id_teamlist').select_related(
-        'id_category').select_related('id_view').order_by('p_sorting','-id').filter(p_status=True)
+        'id_category').select_related('id_view').order_by('p_sorting', '-id').filter(p_status=True)
     serializer_class = ProjectSerializer
 
     def perform_create(self, serializer):
@@ -136,8 +113,6 @@ class ProjectDetailed(RetrieveAPIView):
     serializer_class = ProjectDet
 
     def get_queryset(self, **kwargs):
-        # pro = Project.objects.get(pk=self.kwargs['pk'])
-        # serializer = ProjectDet(pro)
-        # return Response(serializer.data)
-        return Project.objects.filter(pk=self.kwargs['pk']).prefetch_related('skills').prefetch_related('id_teamlist').select_related(
-        'id_category').select_related('id_view')
+        return Project.objects.filter(pk=self.kwargs['pk']).prefetch_related('skills').prefetch_related(
+            'id_teamlist').select_related(
+            'id_category').select_related('id_view')

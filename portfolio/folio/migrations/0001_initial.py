@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(max_length=255, unique=True, verbose_name='URL')),
                 ('p_description', models.TextField(verbose_name='Описание')),
                 ('p_i_did', models.CharField(blank=True, max_length=255, null=True, verbose_name='сфера деятельности')),
-                ('p_img', models.ImageField(blank=True, null=True, upload_to=folio.models.Project.get_file_path, verbose_name='Фото')),
+                ('p_img', models.ImageField( verbose_name='Фото')),
                 ('p_img_preview_png', models.JSONField(blank=True, null=True)),
                 ('p_img_preview_webp', models.JSONField(blank=True, null=True)),
                 ('p_img_large_png', models.JSONField(blank=True, null=True)),
