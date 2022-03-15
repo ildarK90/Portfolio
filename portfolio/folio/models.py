@@ -122,28 +122,26 @@ class Project(models.Model):
         path = 'photos/project_photo/{}/{}/{}'.format(date_now[0], date_now[1], date_now[2])
         return os.path.join(path, filename)
 
+    p_name = models.CharField(max_length=255, verbose_name='Имя проекта')
     id_category = models.ForeignKey('Category', on_delete=models.CASCADE, verbose_name='Категория')
     id_view = models.ForeignKey('View', on_delete=models.CASCADE, verbose_name='Вид')
-    id_teamlist = models.ManyToManyField('Team', blank=True, related_name='projects')
+    id_teamlist = models.ManyToManyField('Team', blank=True, related_name='projects', verbose_name='Принимали участие')
     p_organization = models.CharField(max_length=350, verbose_name='Организация', default=None)
-    p_name = models.CharField(max_length=255, verbose_name='Имя проекта')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
-    p_description = models.TextField(verbose_name='Описание')
-    p_i_did = models.CharField(max_length=255, verbose_name='сфера деятельности', blank=True, null=True)
-    p_img = models.ImageField(verbose_name='Фото', blank=True, null=True)
+    p_description = models.TextField(verbose_name='Кратко о проекте')
+    p_i_did = models.TextField(verbose_name='Что было сделано мной')
+    p_img = models.ImageField(verbose_name='Фото png 920x600')
     p_img_preview_png = models.JSONField(null=True, blank=True)
     p_img_preview_webp = models.JSONField(null=True, blank=True)
     p_img_large_png = models.JSONField(null=True, blank=True)
     p_img_large_webp = models.JSONField(null=True, blank=True)
-    p_link = models.CharField(max_length=255, verbose_name='Ссылка')
-    skills = models.ManyToManyField('Skills', blank=True, related_name='project')
-    p_git = models.CharField(max_length=255, verbose_name='Github', default=None)
-    p_sorting = models.IntegerField(verbose_name='Сортировка')
-    p_status = models.IntegerField(verbose_name='Статус')
+    p_link = models.CharField(max_length=255, verbose_name='Ссылка на проект')
+    skills = models.ManyToManyField('Skills', related_name='project', verbose_name='Использовал технологии')
+    p_git = models.CharField(max_length=255, verbose_name='Ссылка на репозиторий', default=None)
+    p_sorting = models.IntegerField(verbose_name='Сортировка', default=0)
+    p_status = models.BooleanField(verbose_name='Показать', default=True)
 
     def save(self, *args, **kwargs):
         if self.p_img:
-            # super(Project, self).save(update_fields=["p_img"])
             print(self.__original_name)
             print('Есть изображение',self.p_img.name,self.__original_name.name)
 
@@ -159,26 +157,30 @@ class Project(models.Model):
                 self.p_img_large_webp = webp_detailed
                 self.p_img_preview_png = png_preview
                 self.p_img_large_png = png_detailed
-                # super().save(*args, **kwargs)
+                super().save(*args, **kwargs)
+                self.__original_name = self.p_img
+            else:
+                self.p_img = self.__original_name
+                super().save(*args, **kwargs)
+                print('загруженное фото',self.p_img.name)
+                print('предыдущее фото',self.__original_name)
         else:
-            super(Project,self).save(*args, **kwargs)
-            print(self.p_img.name)
-            self.__original_name = self.p_img
-
+            super().save(*args,**kwargs)
 
     def __str__(self):
         return self.p_name
 
     def get_absolute_url(self):
-        return reverse('project', kwargs={'slug': self.slug})
+        return reverse('project', kwargs={'pk': self.pk})
 
     class Meta:
         verbose_name = 'Проект'
+        verbose_name_plural = "Проекты"
 
 
 class Team(models.Model):
     b_name = models.CharField(max_length=250, verbose_name='Имя')
-    b_post = models.CharField(max_length=250, verbose_name='Пост')
+    b_post = models.CharField(max_length=250, verbose_name='Специальность')
     b_link = models.CharField(max_length=250, verbose_name='Ссылка на Github', blank=True)
 
     def __str__(self):
@@ -186,11 +188,11 @@ class Team(models.Model):
 
     class Meta:
         verbose_name = 'Программисты'
+        verbose_name_plural = "Программисты"
 
 
 class Category(models.Model):
     c_name = models.CharField(max_length=100, db_index=True, verbose_name='Имя категории')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
 
     def __str__(self):
         return self.c_name
@@ -202,44 +204,45 @@ class Category(models.Model):
 
 class View(models.Model):
     v_name = models.CharField(max_length=150, db_index=True, verbose_name='Имя вида')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
 
     def __str__(self):
         return self.v_name
 
     class Meta:
         verbose_name = 'Вид'
+        verbose_name_plural = "Вид"
 
 
 class Skills(models.Model):
     id_catSkil = models.ForeignKey('CatSkill', on_delete=models.CASCADE, verbose_name='Категория навыка', related_name='skills')
-    s_name = models.CharField(max_length=250, db_index=True, verbose_name='Навыки')
-    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='URL')
+    s_name = models.CharField(max_length=250, db_index=True, verbose_name='Название')
     s_description = models.CharField(max_length=255, verbose_name='Описание')
-    s_img = models.ImageField(upload_to='photos/skill_photo/%y/%m/%d', verbose_name='фото', blank=True, null=True)
-    s_quantity = models.IntegerField(verbose_name='Количество')
-    s_level = models.IntegerField(verbose_name='Уровень')
+    s_img = models.ImageField(upload_to='skills', verbose_name='Иконка svg 123x123px')
+    s_quantity = models.IntegerField(verbose_name='Использовал в проектах')
+    s_level = models.IntegerField(verbose_name='Уровень владения')
     s_sorting = models.IntegerField(verbose_name='Сортировка')
-    s_status = models.BooleanField(verbose_name='Статус', default=True)
+    s_status = models.BooleanField(verbose_name='Показать', default=True)
 
-    # project = models.ManyToManyField('Project', blank=True,related_name='skill')
+
 
     def __str__(self):
         return self.s_name
 
     class Meta:
         verbose_name = 'Навыки'
+        verbose_name_plural = "Навыки"
 
     def get_absolute_url(self):
-        return reverse('skill', kwargs={'skill_slug': self.slug})
+        return reverse('skill', kwargs={'pk': self.pk})
 
 
 class CatSkill(models.Model):
     cs_name = models.CharField(max_length=255, db_index=True, verbose_name='Категория навыков')
-    cs_sorting = models.IntegerField(default=0)
+    cs_sorting = models.IntegerField(default=0, verbose_name='Сортировка')
 
     def __str__(self):
         return self.cs_name
 
     class Meta:
         verbose_name = 'Категория навыков'
+        verbose_name_plural = "Категории навыков"
