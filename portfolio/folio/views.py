@@ -11,7 +11,7 @@ menu = [{'url': 'skills'}, {'url': 'projects'}]
 
 class Home(DataMixin, ListView):
     """
-    Выводим
+    Выводим главную страницу
     """
     model = Project
     context_object_name = 'projects'
