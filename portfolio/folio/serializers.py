@@ -4,41 +4,15 @@ from .models import *
 from operator import itemgetter
 
 
-class SkillSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Skills
-        fields = ['s_name']
-
-
-class SkillSerializerfull(serializers.ModelSerializer):
-    id_skills = serializers.CharField(source='id')
-    class Meta:
-        model = Skills
-        fields = ['id_skills', 's_name', 's_description', 's_img', 's_quantity', 's_level']
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['c_name']
-
-
-class TeamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Team
-        fields = ['b_name']
-
-
 class CatSkillSerializer(serializers.ModelSerializer):
     category = serializers.CharField(source='cs_name')
-    # skill = SkillSerializerfull(source='skills', many=True)
     skill = serializers.SerializerMethodField(method_name='get_skills')
 
     class Meta:
         model = CatSkill
         fields = ['category', 'skill']
 
-    def get_skills(self,instance):
+    def get_skills(self, instance):
         request = self.context.get('request')
         skilli = []
         for i in instance.skills.all().filter(s_status=True):
@@ -47,7 +21,7 @@ class CatSkillSerializer(serializers.ModelSerializer):
             skills['s_name'] = i.s_name
             skills['s_description'] = i.s_description
             if i.s_img:
-             skills['s_img'] = i.s_img.url
+                skills['s_img'] = i.s_img.url
             else:
                 skills['s_img'] = None
             skills['s_quantity'] = i.s_quantity
@@ -61,13 +35,8 @@ class CatSkillSerializer(serializers.ModelSerializer):
         return skilli
 
 
-
-
-
-
 class ProjectSerializer(serializers.ModelSerializer):
     img = serializers.SerializerMethodField(method_name='get_image')
-    # cat = serializers.StringRelatedField(many=False)
     category = serializers.CharField(source='id_category')
     id_project = serializers.CharField(source='pk')
 
