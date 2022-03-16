@@ -30,12 +30,12 @@ class Project(models.Model):
         super().__init__(*args, **kwargs)
         self.__original_name = self.p_img
 
-
     """
     Функция ресайза для отдельного фото по ресайзу
     """
 
-    def find_proprtion(self, instance, new_width, new_height, extension, name, *args, **kwargs):  # Принимаем экземпляр модели(instance),ширину, высоту, разрешение,имя
+    def find_proprtion(self, instance, new_width, new_height, extension, name, *args,
+                       **kwargs):  # Принимаем экземпляр модели(instance),ширину, высоту, разрешение,имя
 
         filename, file_extension = os.path.splitext(
             instance.path)  # Разбиваем абсолютный путь на имя файла и расширение
@@ -51,7 +51,8 @@ class Project(models.Model):
             pass
         save_path = nw_name + '.' + (str(extension)).lower()  # Путь для сохранения ресайза фото + расширение
         image = Image.open(instance.path)  # Открываем фото с помощью библиотеки PIL
-        relative_name = save_path[save_path.rfind('media'):len(save_path)]   # Обрезаем абсолютный путь до относительного, в папке media
+        relative_name = save_path[save_path.rfind('media'):len(
+            save_path)]  # Обрезаем абсолютный путь до относительного, в папке media
         size = (new_width, new_height)  # Задаем новые ширину и высоту
         res_image = image.resize(size, Image.ANTIALIAS)  # Выполняем функцию ресайза от библиотеки PIL
         res_image.save(save_path, format=str(extension))  # Сохраняем ресайз фото по абсолютному пути
@@ -65,8 +66,10 @@ class Project(models.Model):
     def make_resize(self, photo, extension, resolution):
         gallery = {}  # Создаем словарь для JSON, в который будем передавать -preview@2x и тд из нашей коллекции в качестве ключа и относительный путь к каждому ресайзу в качестве значения
         for thumbnail in resolution:  # Перебираем переданную коллекцию в которой находятся дополнения для имени файла -preview@2x и тд, новая ширина и высота
-            thumb = self.find_proprtion(photo, thumbnail[0], thumbnail[1], extension=extension, name=thumbnail[2])  # Производим ресайз для каждого фото, всего 6 ресайзов
-            gallery[thumbnail[2]] = thumb  # Добавляем в словарь в качестве ключа дополнительное название файла и в качестве значения относительный путь к ресайзу
+            thumb = self.find_proprtion(photo, thumbnail[0], thumbnail[1], extension=extension,
+                                        name=thumbnail[2])  # Производим ресайз для каждого фото, всего 6 ресайзов
+            gallery[thumbnail[
+                2]] = thumb  # Добавляем в словарь в качестве ключа дополнительное название файла и в качестве значения относительный путь к ресайзу
         return gallery
 
     p_name = models.CharField(max_length=255, verbose_name='Имя проекта')
