@@ -55,6 +55,11 @@ class Project(models.Model):
         size = (new_width, new_height)  # Задаем новые ширину и высоту
         res_image = image.resize(size, Image.ANTIALIAS)  # Выполняем функцию ресайза от библиотеки PIL
         res_image.save(save_path, format=str(extension))  # Сохраняем ресайз фото по абсолютному пути
+        try:
+            source = tinify.from_file(save_path)
+            source.to_file(save_path)
+        except:
+            pass
         return relative_name  # Возвращаем относительный путь
 
     def make_resize(self, photo, extension, resolution):
