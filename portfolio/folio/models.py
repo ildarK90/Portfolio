@@ -76,7 +76,7 @@ class Project(models.Model):
     id_category = models.ForeignKey('Category', on_delete=models.CASCADE, verbose_name='Категория')
     id_view = models.ForeignKey('View', on_delete=models.CASCADE, verbose_name='Вид')
     id_teamlist = models.ManyToManyField('Team', blank=True, related_name='projects', verbose_name='Принимали участие')
-    p_organization = models.CharField(max_length=350, verbose_name='Организация', default=None)
+    p_organization = models.CharField(max_length=350, verbose_name='Организация', default=None, blank=True)
     p_description = models.TextField(verbose_name='Кратко о проекте')
     p_i_did = models.TextField(verbose_name='Что было сделано мной')
     p_img = models.ImageField(verbose_name='Фото png 920x600')
@@ -86,7 +86,7 @@ class Project(models.Model):
     p_img_large_webp = models.JSONField(null=True, blank=True)
     p_link = models.CharField(max_length=255, verbose_name='Ссылка на проект')
     skills = models.ManyToManyField('Skills', related_name='project', verbose_name='Использовал технологии')
-    p_git = models.CharField(max_length=255, verbose_name='Ссылка на репозиторий', default=None)
+    p_git = models.CharField(max_length=255, verbose_name='Ссылка на репозиторий', default=None, blank=True)
     p_sorting = models.IntegerField(verbose_name='Сортировка', default=0)
     p_status = models.BooleanField(verbose_name='Показать', default=True)
 
@@ -98,8 +98,7 @@ class Project(models.Model):
         # Проверяем наличие фото, если есть фото, то проверяем было ли оно уже в базе, если нет-то выполняем ресайз
         if self.p_img:
             if self.__original_name.name != self.p_img.name:
-                super(Project, self).save(
-                    update_fields=["p_img"])  # Если фото новое,то сохраняем только поле изображения
+                super().save(*args, **kwargs)  # Сохраняем модель
                 webp_preview = self.make_resize(self.p_img, extension='webp',
                                                 resolution=preview_webp)  # Выполняем ресайз формата webp для превью
                 webp_detailed = self.make_resize(self.p_img, extension='webp',
