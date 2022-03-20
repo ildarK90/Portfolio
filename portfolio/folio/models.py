@@ -39,6 +39,8 @@ class Project(models.Model):
 
         filename, file_extension = os.path.splitext(
             instance.path)  # Разбиваем абсолютный путь на имя файла и расширение
+        print('текущая паааааапка', os.path.abspath(os.getcwd()))
+        print('fileeeeeeeename', filename)
         clean_name = filename.split('\\')[-1]  # Узнаем чисто имя файла без разрешения
         nw_name = filename[:filename.rfind('\\')] + '\\' + 'resize\\' + str(clean_name) + str(
             name)  # С помощью фукции rfind находим последнее положение символа \\ и добавляем 'resize' + имя фото + дополнительные символы "preview@2x" и тд
@@ -50,17 +52,18 @@ class Project(models.Model):
         except:
             pass
         save_path = nw_name + '.' + (str(extension)).lower()  # Путь для сохранения ресайза фото + расширение
+        print('saveeeeee path', save_path)
         image = Image.open(instance.path)  # Открываем фото с помощью библиотеки PIL
         relative_name = save_path[save_path.rfind('media'):len(
             save_path)]  # Обрезаем абсолютный путь до относительного, в папке media
         size = (new_width, new_height)  # Задаем новые ширину и высоту
         res_image = image.resize(size, Image.ANTIALIAS)  # Выполняем функцию ресайза от библиотеки PIL
         res_image.save(save_path, format=str(extension))  # Сохраняем ресайз фото по абсолютному пути
-        try:
-            source = tinify.from_file(save_path)
-            source.to_file(save_path)
-        except:
-            pass
+        # try:
+        #     source = tinify.from_file(save_path)
+        #     source.to_file(save_path)
+        # except:
+        #     pass
         return relative_name  # Возвращаем относительный путь
 
     def make_resize(self, photo, extension, resolution):
