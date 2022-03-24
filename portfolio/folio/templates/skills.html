@@ -16,6 +16,9 @@
     {% for sk in skills %}
     <tr>
       <td>{{ sk.s_name }}</td>
+        {% if sk.s_img %}
+        <td></td><img src="{{sk.s_img.url}}" height="300" width="300"></tr></td>
+        {% endif %}
       <td>
       {% for pr in sk.project.all %}
        <a href="{{pr.get_absolute_url}}">{{ pr.p_name }}</a>

@@ -168,7 +168,7 @@ class Skills(models.Model):
                                    related_name='skills')
     s_name = models.CharField(max_length=250, db_index=True, verbose_name='Название')
     s_description = models.CharField(max_length=255, verbose_name='Описание')
-    s_img = models.ImageField(upload_to='skills', verbose_name='Иконка svg 123x123px')
+    s_img = models.FileField(upload_to='skills', verbose_name='Иконка svg 123x123px')
     s_quantity = models.IntegerField(verbose_name='Использовал в проектах')
     s_level = models.IntegerField(verbose_name='Уровень владения')
     s_sorting = models.IntegerField(verbose_name='Сортировка')

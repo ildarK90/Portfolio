@@ -34,6 +34,8 @@ class Skill(DataMixin, DetailView):
     template_name = 'skill.html'
     slug_url_kwarg = 'skill_slug'
 
+
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         print(context)
@@ -70,6 +72,9 @@ class ProjectDetail(DataMixin, DetailView):
         context = dict(list(context.items()) + list(c_def.items()))
         print(context)
         return context
+
+    def get_queryset(self):
+        return
 
 
 class ProjectList(generics.ListCreateAPIView):
